@@ -79,11 +79,11 @@ class MvcController{
 
 				$respuesta = Datos::ingresoUsuarioModel($datosController, "usuarios");
 
-				
+				$intentos = $respuesta["intentos"];
                 $usuario = $_POST["usuarioIngreso"];
 				$maximoIntentos = 2;
 
-				
+				if($intentos < $maximoIntentos){
 
 					if($respuesta["usuario"] == $_POST["usuarioIngreso"] && $respuesta["password"] == $encriptar){
 
@@ -91,30 +91,39 @@ class MvcController{
 
 						$_SESSION["validar"] = true;
 
-						
+						$intentos = 0;
 
-					    $datosController = array("usuarioActual"=>$usuario,);
+					    $datosController = array("usuarioActual"=>$usuario, "actualizarIntentos"=>$intentos);
 
-					    
+					    $respuestaActualizarIntentos = Datos::intentosUsuarioModel($datosController, "usuarios");
 
 						echo '<script>window.location="usuarios"</script>';
 
 					}
 					else{
 
-						
+						++$intentos;
 
-						$datosController = array("usuarioActual"=>$usuario);
+						$datosController = array("usuarioActual"=>$usuario, "actualizarIntentos"=>$intentos);
 
-						
+						$respuestaActualizarIntentos = Datos::intentosUsuarioModel($datosController, "usuarios");
 
 						echo '<script>window.location="fallo"</script>';
 
-					
+					}
 
 				}
 
-				
+				else{
+
+					$intentos = 0;
+
+					$datosController = array("usuarioActual"=>$usuario, "actualizarIntentos"=>$intentos);
+
+					$respuestaActualizarIntentos = Datos::intentosUsuarioModel($datosController, "usuarios");
+
+					echo '<script>window.location="fallo3intentos"</script>';
+				}
 
 			}
 
@@ -122,76 +131,10 @@ class MvcController{
 		}
 	}
 
-/*public static function ingresoUsuarioController(){
-
-    if(isset($_POST["usuarioIngreso"])){
-
-        if(preg_match('/^[a-zA-Z0-9]*$/', $_POST["usuarioIngreso"]) &&
-           preg_match('/^[a-zA-Z0-9]*$/', $_POST["passwordIngreso"])){
-
-            $encriptar = crypt($_POST["passwordIngreso"], '$2a$07$asxx54ahjppf45sd87a5a4dDDGsystemdev$');
-
-            $datosController = array(
-                "usuario" => $_POST["usuarioIngreso"],
-                "password" => $encriptar
-            );
-
-            $respuesta = Datos::ingresoUsuarioModel($datosController, "usuarios");
-
-            $usuario = $_POST["usuarioIngreso"];
-            $maximoIntentos = 2;
-
-            if($respuesta["intentos"] < $maximoIntentos){
-
-                if($respuesta["usuario"] == $_POST["usuarioIngreso"] && $respuesta["password"] == $encriptar){
-
-                    $_SESSION["validar"] = true;
-
-                    $datosController = array(
-                        "usuarioActual" => $usuario,
-                        "actualizarIntentos" => 0
-                    );
-
-                    Datos::intentosUsuarioModel($datosController, "usuarios");
-
-                    echo '<script>window.location="usuarios"</script>';
-
-                } else {
-
-                    $intentos = $respuesta["intentos"] + 1;
-
-                    $datosController = array(
-                        "usuarioActual" => $usuario,
-                        "actualizarIntentos" => $intentos
-                    );
-
-                    Datos::intentosUsuarioModel($datosController, "usuarios");
-
-                    echo '<script>window.location="fallo"</script>';
-
-                }
-
-            } else {
-
-                $datosController = array(
-                    "usuarioActual" => $usuario,
-                    "actualizarIntentos" => 0
-                );
-
-                Datos::intentosUsuarioModel($datosController, "usuarios");
-
-                echo '<script>window.location="fallo3intentos"</script>';
-            }
-
-        }
-    }
-}*/
-
 
 	public static function vistaUsuarioController(){
 
-		//$respuesta = Datos::vistaUsuarioModel("usuarios");
-		$respuesta = 'prueba';
+		$respuesta = Datos::vistaUsuarioModel("usuarios");
 
         foreach ($respuesta as $row => $item) {
 		echo'<tr>
@@ -286,7 +229,6 @@ class MvcController{
 	}
 
 }
-
 
 
 ?>
